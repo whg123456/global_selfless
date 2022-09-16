@@ -75,7 +75,7 @@ public class NettyChatClient {
     }
 
     public static void main(String[] args) {
-        NettyChatClient nettyChatClient = new NettyChatClient("127.0.0.1", 9000);
+        NettyChatClient nettyChatClient = new NettyChatClient("81.70.142.244", 18000);
         nettyChatClient.start();
     }
 }

@@ -1,7 +1,4 @@
 package g.top.api.test;
-
-import g.top.data.cache.Cache;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 /**
@@ -10,8 +7,4 @@ import org.springframework.stereotype.Service;
 @Service
 public class tta {
 
-    @Cache
-    public String test() {
-        return "hello";
-    }
 }

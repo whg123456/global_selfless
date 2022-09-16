@@ -1,6 +1,5 @@
 package g.top.api.test;
 
-import g.top.data.cache.Cache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,10 +18,6 @@ public class test {
     @Autowired
     private tta ta;
 
-    @RequestMapping("/test815")
-    public Object test() throws Exception {
-        return ta.test();
-    }
 
     public static void main(String[] args) throws Exception{
         ServerSocketChannel serverSocketChannel = ServerSocketChannel.open();

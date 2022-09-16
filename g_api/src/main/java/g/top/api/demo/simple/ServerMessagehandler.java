@@ -35,7 +35,7 @@ public class ServerMessagehandler extends ChannelInboundHandlerAdapter {
         channels.add(channel);
 
         SocketAddress address = channel.remoteAddress();
-        String msg = getNowTime() + "\n[用户]" + address + "上线";
+        String msg = getNowTime() + "\n[用户]" + address + " 上线";
         String onLinePeoples = "\n当前在线人数 : " + channels.size();
 
 
@@ -71,7 +71,7 @@ public class ServerMessagehandler extends ChannelInboundHandlerAdapter {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         Channel channel = ctx.channel();
         SocketAddress address = channel.remoteAddress();
-        String msg = getNowTime() + "\n [用户]" + address + "下线";
+        String msg = getNowTime() + "\n [用户]" + address + " 下线";
         String onLinePeoples = "当前在线人数 : " + channels.size();
 
 
