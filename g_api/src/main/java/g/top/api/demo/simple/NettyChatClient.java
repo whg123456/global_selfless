@@ -1,7 +1,10 @@
 package g.top.api.demo.simple;
 
+import com.google.common.base.Charsets;
 import g.top.api.demo.base.Clienthander;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
@@ -33,8 +36,8 @@ public class NettyChatClient {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ChannelPipeline pipeline = ch.pipeline();
-                            pipeline.addLast("encoder", new StringEncoder())
-                                    .addLast("decoder", new StringDecoder())
+                            pipeline.addLast("encoder", new StringEncoder(Charsets.UTF_8))
+                                    .addLast("decoder", new StringDecoder(Charsets.UTF_8))
                                     .addLast(new ClientMessagehandler());
                         }
                     });
@@ -52,7 +55,7 @@ public class NettyChatClient {
             Scanner sc = new Scanner(System.in);
             while (sc.hasNextLine()) {
                 String msg = sc.nextLine();
-                channel.writeAndFlush(msg + "\n");
+                channel.writeAndFlush(msg);
             }
 
             channelFuture.channel().closeFuture().sync();
