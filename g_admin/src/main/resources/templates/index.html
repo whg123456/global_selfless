@@ -1,10 +1,147 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0,user-scalable=no,minimal-ui">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../img/asset-favico.ico">
+    <title>登录</title>
+    <link rel="stylesheet" href="../static/elementui/index2.css" />
+    <script src="../static/jquery/dist/jquery.min.js"></script>
+    <script src="../static/vue/vue.js"></script>
+    <script src="../static/vue/axios-0.18.0.js"></script>
+    <script src="../static/elementui/index2.js"></script>
 </head>
+<style>
+    .el-header, .el-footer {
+        background-color: #B3C0D1;
+        color: #333;
+        text-align: center;
+        line-height: 70px;
+    }
+
+    .el-aside {
+        background-color: #D3DCE6;
+        color: #333;
+        text-align: center;
+        line-height: 600px;
+    }
+
+    .el-main {
+        background-color: #E9EEF3;
+        color: #333;
+        text-align: center;
+        line-height: 160px;
+    }
+
+    body > .el-container {
+        margin-bottom: 40px;
+    }
+
+    .el-container:nth-child(5) .el-aside,
+    .el-container:nth-child(6) .el-aside {
+        line-height: 360px;
+    }
+
+    .el-container:nth-child(7) .el-aside {
+        line-height: 420px;
+    }
+</style>
 <body>
-    init
+<div class="app" id="app">
+    <el-container>
+        <el-header >
+            <div style="margin-left: -20px; margin-right: -20px; ">
+                <div >
+                    <el-menu
+                            :default-active="1"
+                            class="el-menu-demo"
+                            mode="horizontal"
+                            @select="handleSelect"
+                            background-color="#545c64"
+                            text-color="#fff"
+                            active-text-color="#ffd04b">
+                        <el-menu-item index="1" style="margin-left: 220px; width: 280px;">
+                            处理中心
+                        </el-menu-item>
+                        <el-menu-item index="2" style="width: 280px;">消息中心</el-menu-item>
+                        <el-menu-item index="3" disabled style="width: 280px;">读物中心</el-menu-item>
+                        <el-menu-item index="4" style="width: 280px;"><a href="https://www.ele.me" target="_blank">订单管理</a></el-menu-item>
+                        <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png" style="height: 40px; margin-left: 220px;"></el-avatar>
+
+                    </el-menu>
+
+                </div>
+
+                <!--                <template>-->
+                <!--                    <div>-->
+                <!--                        <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"></el-avatar>-->
+                <!--                    </div>-->
+                <!--                </template>-->
+            </div>
+            <!--            <div style="float: top">-->
+            <!--                <el-avatar src="https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png"></el-avatar>-->
+            <!--            </div>-->
+        </el-header>
+        <el-container>
+            <el-main >
+
+            </el-main>
+
+        </el-container>
+    </el-container>
+</div>
 </body>
+<script>
+    var vue = new Vue({
+        el:'#app',
+        data:{
+            circleUrl: "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png",
+            squareUrl: "https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png",
+            sizeList: ["large", "medium", "small"],
+            loginInfo:{}//登录信息
+        },
+        methods:{
+            handleSelect(key, keyPath) {
+                console.log(key, keyPath);
+            },
+            //发送验证码
+            sendValidateCode(){
+                var telephone = this.loginInfo.telephone;
+                if (!checkTelephone(telephone)) {
+                    this.$message.error('请输入正确的手机号');
+                    return false;
+                }
+                validateCodeButton = $("#validateCodeButton")[0];
+                clock = window.setInterval(doLoop, 1000); //一秒执行一次
+                axios.post("/validateCode/send4Login.do?telephone=" + telephone).then((response) => {
+                    if(!response.data.flag){
+                        //验证码发送失败
+                        this.$message.error('验证码发送失败，请检查手机号输入是否正确');
+                    }
+                });
+            },
+            //登录
+            login(){
+                var telephone = this.loginInfo.telephone;
+                if (!checkTelephone(telephone)) {
+                    this.$message.error('请输入正确的手机号');
+                    return false;
+                }
+                axios.post("/login/check.do",this.loginInfo).then((response) => {
+                    if(response.data.flag){
+                        //登录成功,跳转到index.html
+                        window.location.href="index.html";
+                    }else{
+                        //失败，提示失败信息
+                        this.$message.error(response.data.message);
+                    }
+                });
+            }
+        }
+    });
+</script>
 </html>
