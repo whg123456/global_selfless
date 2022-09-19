@@ -1,8 +1,6 @@
 package g.top.data.cache;
 
-import g.top.domain.ExpiryMap;
-
-import java.util.UUID;
+import g.top.model.base.ExpiryMap;
 
 /**
  * Created by wanghaiguang on 2022/9/7 下午5:38

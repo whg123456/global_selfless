@@ -1,7 +1,7 @@
 package g.top.data.cache;
 
 import com.google.common.base.Strings;
-import g.top.domain.ExpiryMap;
+import g.top.model.base.ExpiryMap;
 import g.top.utils.JacksonHelper;
 import g.top.utils.StringHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
-import java.util.concurrent.TimeUnit;
 
 @Aspect
 @Slf4j

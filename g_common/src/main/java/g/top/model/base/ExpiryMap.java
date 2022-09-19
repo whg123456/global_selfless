@@ -1,4 +1,4 @@
-package g.top.domain;
+package g.top.model.base;
 
 /**
  * Created by wanghaiguang on 2022/9/7 下午3:50

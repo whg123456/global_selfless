@@ -8,6 +8,12 @@
     <artifactId>g_api</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <parent>
+        <groupId>org.example</groupId>
+        <artifactId>g_selfless</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
     <dependencies>
         <dependency>
             <groupId>org.example</groupId>
@@ -18,6 +24,10 @@
             <groupId>org.example</groupId>
             <artifactId>g_data</artifactId>
             <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
     </dependencies>
 

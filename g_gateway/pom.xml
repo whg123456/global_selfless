@@ -7,6 +7,10 @@
     <groupId>org.example</groupId>
     <artifactId>g_gateway</artifactId>
     <version>1.0-SNAPSHOT</version>
-
+    <parent>
+        <groupId>org.example</groupId>
+        <artifactId>g_selfless</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
 
 </project>
