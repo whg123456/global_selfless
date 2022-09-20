@@ -1,11 +1,11 @@
+server:
+  port: 8090
 spring:
   application:
-    name: g_renter
+    name: gability
   cloud:
     nacos:
       discovery:
         username: nacos # nacos 登录用户名
         password: nacos # nacos 密码
         server-addr: 81.70.142.244:8848 # nacos 服务端地址
-server:
-  port: 8081 # 项目启动端口号

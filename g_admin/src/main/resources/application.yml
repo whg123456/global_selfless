@@ -1,2 +1,11 @@
 server:
-  port: 8080
+  port: 8084
+spring:
+  application:
+    name: gadmin
+  cloud:
+    nacos:
+      discovery:
+        username: nacos # nacos 登录用户名
+        password: nacos # nacos 密码
+        server-addr: 81.70.142.244:8848 # nacos 服务端地址
