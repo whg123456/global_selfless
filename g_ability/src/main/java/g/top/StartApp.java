@@ -2,11 +2,13 @@ package g.top;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
 /**
  * Created by wanghaiguang on 2022/9/20 上午11:00
  */
+@EnableCircuitBreaker
 @EnableDiscoveryClient
 //@EnableFeignClients(basePackages = {"g.top.api.feign"})
 @SpringBootApplication
