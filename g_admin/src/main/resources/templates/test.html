@@ -365,7 +365,7 @@
         <el-container>
             <el-main >
                 <template>
-                    <div style="height: 100%; width: 100%; background-color: #ededed">
+                    <div style="height: 800px; width: 100%; background-color: #ededed">
                         <div class="wrap">
                             <!-- 头部 -->
                             <div class="titleBox">
@@ -496,7 +496,13 @@
                                             <i @click="extend('聊天记录')" class="el-icon-chat-dot-round"></i>
                                             <i @click="extend('更多选项')" class="el-icon-more-outline"></i>
                                         </div>
-                                        <el-input v-model="input" placeholder="请输入内容"></el-input>
+                                        <el-input
+                                                type="textarea"
+                                                :rows="2"
+                                                placeholder="请输入内容"
+                                                v-model="textarea">
+                                        </el-input>
+<!--                                        <el-input v-model="input" placeholder="请输入内容"></el-input>-->
                                         <div class="fasong" @click="setUp" v-show="isshow==1?true:false">发送</div>
                                     </div>
                                 </div>
@@ -529,6 +535,12 @@
     var vue = new Vue({
         el:'#app',
         data:{
+            websocket:null,
+            message:{
+                uri:10086,
+                body:'heelo',
+            },
+            textarea:'',
             circleUrl: "https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png",
             squareUrl: "https://cube.elemecdn.com/9/c2/f0ee8a3c7c9638a54940382568c9dpng.png",
             sizeList: ["large", "medium", "small"],
@@ -544,76 +556,76 @@
                     info: "在吗",
                     timer: "2022/8/9",
                 },
-                {
-                    id: 1,
-                    url: "https://img2.baidu.com/it/u=2859542338,3761174075&fm=253&fmt=auto&app=138&f=JPEG?w=501&h=500",
-                    username: "超人不换内裤",
-                    info: "在吗在吗",
-                    timer: "2022/8/1",
-                },
-                {
-                    id: 2,
-                    url: "https://img1.baidu.com/it/u=2029513305,2137933177&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=472",
-                    username: "王子变蛤蟆",
-                    info: "你好，在吗",
-                    timer: "2022/8/9",
-                },
-                {
-                    id: 3,
-                    url: "https://img1.baidu.com/it/u=1960292808,1761809160&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-                    username: "皇太子",
-                    info: "给我看一下这个情况呢",
-                    timer: "2022/8/2",
-                },
-                {
-                    id: 4,
-                    url: "https://img2.baidu.com/it/u=3684117954,695988885&fm=253&fmt=auto&app=138&f=JPEG?w=400&h=400",
-                    username: "飞天小女警",
-                    info: "模拟数据发送一下呢",
-                    timer: "2022/8/4",
-                },
-                {
-                    id: 5,
-                    url: "https://img2.baidu.com/it/u=4122738859,2522601053&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-                    username: "罗大大大",
-                    info: "在吗",
-                    timer: "2022/8/5",
-                },
-                {
-                    id: 6,
-                    url: "https://img0.baidu.com/it/u=661161858,172661768&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-                    username: "王子花",
-                    info: "好的，我知道了",
-                    timer: "2022/8/9",
-                },
-                {
-                    id: 7,
-                    url: "https://img2.baidu.com/it/u=835899845,548435859&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-                    username: "开盖有奖",
-                    info: "试试看吧，再发一次",
-                    timer: "2022/8/9",
-                },
-                {
-                    id: 8,
-                    url: "https://img0.baidu.com/it/u=4065107391,2142799144&fm=253&fmt=auto&app=138&f=JPEG?w=527&h=500",
-                    username: "日本大爆炸",
-                    info: "在吗",
-                    timer: "2022/8/5",
-                },
-                {
-                    id: 9,
-                    url: "https://img2.baidu.com/it/u=2860188096,638334621&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-                    username: "秋天的第一杯奶茶",
-                    info: "好的，我知道了",
-                    timer: "2022/8/9",
-                },
-                {
-                    id: 10,
-                    url: "https://img0.baidu.com/it/u=1694074520,2517635995&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
-                    username: "潮汐",
-                    info: "试试看吧，再发一次",
-                    timer: "2022/8/9",
-                },
+                // {
+                //     id: 1,
+                //     url: "https://img2.baidu.com/it/u=2859542338,3761174075&fm=253&fmt=auto&app=138&f=JPEG?w=501&h=500",
+                //     username: "超人不换内裤",
+                //     info: "在吗在吗",
+                //     timer: "2022/8/1",
+                // },
+                // {
+                //     id: 2,
+                //     url: "https://img1.baidu.com/it/u=2029513305,2137933177&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=472",
+                //     username: "王子变蛤蟆",
+                //     info: "你好，在吗",
+                //     timer: "2022/8/9",
+                // },
+                // {
+                //     id: 3,
+                //     url: "https://img1.baidu.com/it/u=1960292808,1761809160&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+                //     username: "皇太子",
+                //     info: "给我看一下这个情况呢",
+                //     timer: "2022/8/2",
+                // },
+                // {
+                //     id: 4,
+                //     url: "https://img2.baidu.com/it/u=3684117954,695988885&fm=253&fmt=auto&app=138&f=JPEG?w=400&h=400",
+                //     username: "飞天小女警",
+                //     info: "模拟数据发送一下呢",
+                //     timer: "2022/8/4",
+                // },
+                // {
+                //     id: 5,
+                //     url: "https://img2.baidu.com/it/u=4122738859,2522601053&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+                //     username: "罗大大大",
+                //     info: "在吗",
+                //     timer: "2022/8/5",
+                // },
+                // {
+                //     id: 6,
+                //     url: "https://img0.baidu.com/it/u=661161858,172661768&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+                //     username: "王子花",
+                //     info: "好的，我知道了",
+                //     timer: "2022/8/9",
+                // },
+                // {
+                //     id: 7,
+                //     url: "https://img2.baidu.com/it/u=835899845,548435859&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+                //     username: "开盖有奖",
+                //     info: "试试看吧，再发一次",
+                //     timer: "2022/8/9",
+                // },
+                // {
+                //     id: 8,
+                //     url: "https://img0.baidu.com/it/u=4065107391,2142799144&fm=253&fmt=auto&app=138&f=JPEG?w=527&h=500",
+                //     username: "日本大爆炸",
+                //     info: "在吗",
+                //     timer: "2022/8/5",
+                // },
+                // {
+                //     id: 9,
+                //     url: "https://img2.baidu.com/it/u=2860188096,638334621&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+                //     username: "秋天的第一杯奶茶",
+                //     info: "好的，我知道了",
+                //     timer: "2022/8/9",
+                // },
+                // {
+                //     id: 10,
+                //     url: "https://img0.baidu.com/it/u=1694074520,2517635995&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500",
+                //     username: "潮汐",
+                //     info: "试试看吧，再发一次",
+                //     timer: "2022/8/9",
+                // },
             ],
             //用户列表筛选数据
             userListDatas: [
@@ -798,7 +810,69 @@
             //发送和输入显隐
             isshow: 0
         },
+        mounted() {
+            this.connectWebsocket();
+        },
         methods:{
+            connectWebsocket() {
+                // let websocket;
+                if (typeof WebSocket === "undefined") {
+                    console.log("您的浏览器不支持WebSocket");
+                    return;
+                } else {
+                    // let protocol = "ws";
+                    // let url = "";
+                    // if (window.localtion.protocol == "https:") {
+                    //     protocol = "wss";
+                    // }
+                    let url = 'ws://localhost:9688/websocket';
+
+                    // 打开一个websocket
+                    websocket = new WebSocket(url);
+                    // 建立连接
+                    websocket.onopen = () => {
+
+                        // 发送数据
+                        // websocket.send("发送数据");
+                        let random = Math.random() * 50;
+                        websocket.send("{'code':10000,'mess':'"+ random +"'}");
+                        // console.log("websocket发送数据中");
+                    };
+                    // 客户端接收服务端返回的数据
+                    websocket.onmessage = evt => {
+                        console.log("websocket返回的数据：", evt);
+                        var data = eval("(" + evt.data + ")");
+                        switch (data.extend.code) {
+                            case 20001: // user count
+                                console.log("current user: " + data.extend.mess);
+                                break;
+                            case 20002: // auth
+                                console.log("auth result: " + data.extend.mess);
+                                // isAuth = data.extend.mess;
+                                // if (isAuth) {
+                                //     $("#menuModal").modal('hide');
+                                //     $('#chatWin').show();
+                                //     $('#content').append('欢迎来到嗨皮聊天室！！');
+                                //     // $('#content').scrollTop($('#content')[0].scrollHeight);
+                                // }
+                                break;
+                            case 20004: // system message
+                                console.log("system message: " + data.extend.mess);
+                                this.userListData = data.extend.mess;
+                                break;
+                        }
+                        // alert(evt)
+                    };
+                    // 发生错误时
+                    websocket.onerror = evt => {
+                        console.log("websocket错误：", evt);
+                    };
+                    // 关闭连接
+                    websocket.onclose = evt => {
+                        console.log("websocket关闭：", evt);
+                    };
+                }
+            },
             uploadState(state) {
                 if (state !== 4) {
                     this.state = state;
@@ -866,6 +940,7 @@
             },
 //发送
             setUp() {
+                websocket.send("{'code':10086,'mess': '"+ this.textarea +"'}");
                 console.log("发送内容:", this.textarea);
                 this.userInfoList2.push({
                     url: "https://img2.baidu.com/it/u=2859542338,3761174075&fm=253&fmt=auto&app=138&f=JPEG?w=501&h=500",

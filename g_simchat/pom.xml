@@ -8,31 +8,19 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
-    <groupId>org.example</groupId>
     <version>1.0-SNAPSHOT</version>
-    <artifactId>g_ability</artifactId>
+    <artifactId>g_simchat</artifactId>
 
     <dependencies>
         <dependency>
-            <groupId>org.example</groupId>
-            <artifactId>g_api</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.1.7</version>
         </dependency>
         <dependency>
             <groupId>org.example</groupId>
-            <artifactId>g_renter</artifactId>
+            <artifactId>g_common</artifactId>
             <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.example</groupId>
-            <artifactId>g_data</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>transmittable-thread-local</artifactId>
-            <version>2.12.0</version>
         </dependency>
     </dependencies>
 

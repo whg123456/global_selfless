@@ -17,6 +17,7 @@
         <module>g_gateway</module>
         <module>g_renter</module>
         <module>g_ability</module>
+        <module>g_simchat</module>
     </modules>
     <dependencyManagement>
         <dependencies>
