@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0,user-scalable=no,minimal-ui">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../img/asset-favico.ico">
+    <link rel="stylesheet" href="../static/elementui/index2.css"/>
+    <script src="../static/jquery/dist/jquery.min.js"></script>
+    <script src="../static/vue/vue.js"></script>
+    <script src="../static/vue/axios-0.18.0.js"></script>
+    <script src="../static/elementui/index2.js"></script>
+</head>
+<body>
+<div id="app">
+
+    <template>
+        <div class="loginbody">
+            <div class="logindata">
+                <div class="logintext">
+                    <h2>Welcome</h2>
+                </div>
+                <div class="formdata">
+                    <el-form ref="form" :model="form" :rules="rules">
+                        <el-form-item prop="username">
+                            <el-input
+                                    v-model="form.username"
+                                    clearable
+                                    placeholder="请输入账号"
+                            ></el-input>
+                        </el-form-item>
+                        <el-form-item prop="password">
+                            <el-input
+                                    v-model="form.password"
+                                    clearable
+                                    placeholder="请输入密码"
+                                    show-password
+                            ></el-input>
+                        </el-form-item>
+                    </el-form>
+                </div>
+                <div class="tool">
+                    <div>
+                        <el-checkbox v-model="checked" @change="remenber"
+                        >记住密码</el-checkbox
+                        >
+                    </div>
+                    <div>
+                        <span class="shou" @click="forgetpas">忘记密码？</span>
+                    </div>
+                </div>
+                <div class="butt">
+                    <el-button type="primary" @click.native.prevent="openFullScreen2()"
+                    >登录</el-button
+                    >
+                    <el-button class="shou" @click="register">注册</el-button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+</div>
+
+
+</body>
+
+
+
+
+<style scoped>
+    .loginbody {
+        width: 100%;
+        height: 100%;
+        min-width: 1000px;
+        background-image: url("../static/img/img1.png");
+        background-size: 100% 100%;
+        background-position: center center;
+        overflow: auto;
+        background-repeat: no-repeat;
+        position: fixed;
+        line-height: 100%;
+        padding-top: 150px;
+    }
+
+    .logintext {
+        margin-bottom: 20px;
+        line-height: 50px;
+        text-align: center;
+        font-size: 30px;
+        font-weight: bolder;
+        color: white;
+        text-shadow: 2px 2px 4px #000000;
+    }
+
+    .logindata {
+        width: 400px;
+        height: 300px;
+        transform: translate(-50%);
+        margin-left: 50%;
+    }
+
+    .tool {
+        display: flex;
+        justify-content: space-between;
+        color: #606266;
+    }
+
+    .butt {
+        margin-top: 10px;
+        text-align: center;
+    }
+
+    .shou {
+        cursor: pointer;
+        color: #606266;
+    }
+
+    /*ui*/
+    /* /deep/ .el-form-item__label {
+      font-weight: bolder;
+      font-size: 15px;
+      text-align: left;
+    }
+
+    /deep/ .el-button {
+      width: 100%;
+      margin-bottom: 10px;
+
+    } */
+</style>
+
+<script>
+
+    var vue = new Vue({
+        el:'#app',
+        data() {
+            return {
+                form: {
+                    fullscreenLoading: false,
+                    password: "",
+                    username: "",
+                },
+                checked: false,
+                rules: {
+                    username: [
+                        { required: true, message: "请输入用户名", trigger: "blur" },
+                        { max: 10, message: "不能大于10个字符", trigger: "blur" },
+                    ],
+                    password: [
+                        { required: true, message: "请输入密码", trigger: "blur" },
+                        { max: 10, message: "不能大于10个字符", trigger: "blur" },
+                    ],
+                },
+            };
+        },
+        mounted() {
+            if(localStorage.getItem("news")){
+                this.form=JSON.parse(localStorage.getItem("news"))
+                this.checked=true
+            }
+        },
+        methods: {
+            openFullScreen2() {
+                const loading = this.$loading({
+                    lock: true,
+                    text: 'Loading',
+                    spinner: 'el-icon-loading',
+                    background: 'rgba(0, 0, 0, 0.7)'
+                });
+                setTimeout(() => {
+                    loading.close();
+                }, 2000);
+            },
+            login(form) {
+                this.$refs[form].validate((valid) => {
+                    if (valid) {
+                        login(this.form)
+                            .then((res) => {
+                                if (res.code === 200) {
+                                    setToken(res.data.token);
+                                    localStorage.setItem("USERNAME", res.data.username);
+                                    this.$message({
+                                        message: "登录成功啦",
+                                        type: "success",
+                                        showClose: true,
+                                    });
+                                    this.$router.replace("/");
+                                } else {
+                                    this.$message({
+                                        message: "账户名或密码错误",
+                                        type: "error",
+                                        showClose: true,
+                                    });
+                                }
+                            })
+                            .catch((err) => {
+                                this.$message({
+                                    message: "账户名或密码错误",
+                                    type: "error",
+                                    showClose: true,
+                                });
+                            });
+                    } else {
+                        return false;
+                    }
+                });
+            },
+            remenber(data) {
+                this.checked = data
+                if (this.checked) {
+                    localStorage.setItem("news", JSON.stringify(this.form))
+                } else {
+                    localStorage.removeItem("news")
+                }
+            },
+            forgetpas() {
+                this.$message({
+                    type: "info",
+                    message: "功能尚未开发额😥",
+                    showClose: true
+                })
+            },
+            register() {
+            }
+        }
+    });
+</script>
+
+</html>

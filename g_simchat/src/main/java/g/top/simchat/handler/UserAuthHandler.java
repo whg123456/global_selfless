@@ -6,10 +6,7 @@ package g.top.simchat.handler;
 
 import com.alibaba.fastjson.JSONObject;
 import g.top.model.dto.chat.UserInfo;
-import g.top.simchat.core.ChatCode;
-import g.top.simchat.core.Constants;
-import g.top.simchat.core.NettyUtil;
-import g.top.simchat.core.UserInfoManager;
+import g.top.simchat.core.*;
 import g.top.utils.JacksonHelper;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -34,6 +31,14 @@ public class UserAuthHandler extends SimpleChannelInboundHandler<Object> {
 //        System.out.println(JacksonHelper.serialize(msg));
         return super.acceptInboundMessage(msg);
     }
+
+    @Override
+    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
+        UserInfoManager.removeChannel(ctx.channel());
+        UserInfoManager.broadCastInfo(ChatCode.USER_LIST, UserInfoManager.getTemUsers());
+        super.channelUnregistered(ctx);
+    }
+
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -69,10 +74,10 @@ public class UserAuthHandler extends SimpleChannelInboundHandler<Object> {
         if (handshaker == null) {
             WebSocketServerHandshakerFactory.sendUnsupportedVersionResponse(ctx.channel());
         } else {
-            // 动态加入websocket的编解码处理
+            // 动态加入websocket的编解码处理 握手响应
             handshaker.handshake(ctx.channel(), request);
-            UserInfo userInfo = new UserInfo();
-            userInfo.setAddr(NettyUtil.parseChannelRemoteAddr(ctx.channel()));
+//            UserInfo userInfo = new UserInfo();
+//            userInfo.setAddr(NettyUtil.parseChannelRemoteAddr(ctx.channel()));
             // 存储已经连接的Channel
             UserInfoManager.addChannel(ctx.channel());
         }
@@ -101,8 +106,8 @@ public class UserAuthHandler extends SimpleChannelInboundHandler<Object> {
             throw new UnsupportedOperationException(frame.getClass().getName() + " frame type not supported");
         }
         String message = ((TextWebSocketFrame) frame).text();
-        JSONObject json = JSONObject.parseObject(message);
-        int code = json.getInteger("code");
+        TemMessage temMessage = JSONObject.parseObject(message, TemMessage.class);
+        int code = temMessage.getCode();
         Channel channel = ctx.channel();
         switch (code) {
             case ChatCode.PING_CODE:
@@ -111,15 +116,22 @@ public class UserAuthHandler extends SimpleChannelInboundHandler<Object> {
                 logger.info("receive pong message, address: {}", NettyUtil.parseChannelRemoteAddr(channel));
                 return;
             case ChatCode.AUTH_CODE:
-                boolean isSuccess = UserInfoManager.saveUser(channel, json.getString("nick"));
-                UserInfoManager.sendInfo(channel,ChatCode.SYS_AUTH_STATE,isSuccess);
+                boolean isSuccess = UserInfoManager.saveUser(channel, temMessage.getMess().getNick(), temMessage.getMess().getUid());
                 if (isSuccess) {
                     UserInfoManager.broadCastInfo(ChatCode.SYS_USER_COUNT,UserInfoManager.getAuthUserCount());
+
+                    //在线用户列表
+                    UserInfoManager.broadCastInfo(ChatCode.USER_LIST, UserInfoManager.getTemUsers());
                 }
 
-                UserInfoManager.broadCastInfo(ChatCode.USER_LIST, UserInfoManager.getTemUsers());
                 return;
-            case ChatCode.MESS_CODE: //普通的消息留给MessageHandler处理
+            case ChatCode.SYS_AUTH_STATE:
+            case ChatCode.SYS_OTHER_INFO:
+            case ChatCode.SYS_USER_COUNT:
+            case ChatCode.SINGLE_CHAT:
+            case ChatCode.GROUP_CHAT:
+            case ChatCode.USER_LIST:
+            case ChatCode.ONLINEUSER_LIST:
                 break;
             default:
                 logger.warn("The code [{}] can't be auth!!!", code);
@@ -128,4 +140,7 @@ public class UserAuthHandler extends SimpleChannelInboundHandler<Object> {
         //后续消息交给MessageHandler处理
         ctx.fireChannelRead(frame.retain());
     }
+
+
+
 }

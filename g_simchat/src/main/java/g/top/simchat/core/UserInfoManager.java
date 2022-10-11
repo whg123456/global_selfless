@@ -4,7 +4,9 @@ package g.top.simchat.core;
  * Created by wanghaiguang on 2022/9/25 下午2:10
  */
 
+import g.top.model.base.CommonDTO;
 import g.top.model.dto.chat.UserInfo;
+import g.top.utils.JacksonHelper;
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.slf4j.Logger;
@@ -27,6 +29,10 @@ public class UserInfoManager {
     private static ReentrantReadWriteLock rwLock = new ReentrantReadWriteLock(true);
     private static ConcurrentMap<Channel, UserInfo> userInfos = new ConcurrentHashMap<>();
     private static AtomicInteger userCount = new AtomicInteger(0);
+
+
+
+
     public static void addChannel(Channel channel) {
         String remoteAddr = NettyUtil.parseChannelRemoteAddr(channel);
         if (!channel.isActive()) {
@@ -38,7 +44,10 @@ public class UserInfoManager {
         userInfo.setTime(System.currentTimeMillis());
         userInfos.put(channel, userInfo);
     }
-    public static boolean saveUser(Channel channel, String nick) {
+
+
+
+    public static boolean saveUser(Channel channel, String nick, Integer uid) {
         UserInfo userInfo = userInfos.get(channel);
         if (userInfo == null) {
             return false;
@@ -47,11 +56,18 @@ public class UserInfoManager {
             logger.error("channel is not active, address: {}, nick: {}", userInfo.getAddr(), nick);
             return false;
         }
+        boolean flag = checkParamUid(uid);
+        if (!flag) {
+            sendInfo(channel,ChatCode.SYS_AUTH_STATE,false);
+            channel.close();
+            return false;
+        }
+
         // 增加一个认证用户
         userCount.incrementAndGet();
         userInfo.setNick(nick);
         userInfo.setAuth(true);
-        userInfo.setUserId();
+        userInfo.setUserId(uid);
         userInfo.setTime(System.currentTimeMillis());
         return true;
     }
@@ -76,25 +92,30 @@ public class UserInfoManager {
             rwLock.writeLock().unlock();
         }
     }
+
     /**
-     * 广播普通消息
-     *
-     * @param message
+     * 点对点
      */
-    public static void broadcastMess(int uid, String nick, String message) {
-        if (!BlankUtil.isBlank(message)) {
-            try {
-                rwLock.readLock().lock();
-                Set<Channel> keySet = userInfos.keySet();
-                for (Channel ch : keySet) {
-                    UserInfo userInfo = userInfos.get(ch);
-                    if (userInfo == null || !userInfo.isAuth()) continue;
-                    ch.writeAndFlush(new TextWebSocketFrame(ChatProto.buildMessProto(uid, nick, message)));
-                }
-            } finally {
-                rwLock.readLock().unlock();
+    public static void p2pMess(TemMessage.message mess, String time) {
+        //tem版 未持久化
+
+        ConcurrentMap<Channel, UserInfo> userInfos = getUserInfos();
+        UserInfo sourceUserInfo = userInfos.values().stream().filter(userInfo -> userInfo.getUserId() == mess.getUid()).findFirst().orElse(null);
+        String nick = sourceUserInfo == null ? "" : sourceUserInfo.getNick();
+        userInfos.forEach((k,v) -> {
+            if (v.getUserId() == mess.getTargetUid()) {
+                ChatMessageResp chatMessageResp = ChatMessageResp.builder()
+                        .msg(mess.getMsg())
+                        .sendTime(time)
+                        .sourceImg("")
+                        .sourceNick(nick)
+                        .sourceUid(mess.getUid())
+                        .targetUid(mess.getTargetUid())
+                        .build();
+                String proto = ChatProto.buildProto(ChatCode.SINGLE_CHAT, CommonDTO.success(chatMessageResp));
+                k.writeAndFlush(new TextWebSocketFrame(proto));
             }
-        }
+        });
     }
     /**
      * 广播系统消息
@@ -106,7 +127,7 @@ public class UserInfoManager {
             for (Channel ch : keySet) {
                 UserInfo userInfo = userInfos.get(ch);
                 if (userInfo == null || !userInfo.isAuth()) continue;
-                ch.writeAndFlush(new TextWebSocketFrame(ChatProto.buildSystProto(code, mess)));
+                ch.writeAndFlush(new TextWebSocketFrame(ChatProto.buildProto(code, CommonDTO.success(mess))));
             }
         } finally {
             rwLock.readLock().unlock();
@@ -132,8 +153,25 @@ public class UserInfoManager {
      * @param mess
      */
     public static void sendInfo(Channel channel, int code, Object mess) {
-        channel.writeAndFlush(new TextWebSocketFrame(ChatProto.buildSystProto(code, mess)));
+        channel.writeAndFlush(new TextWebSocketFrame(ChatProto.buildProto(code, CommonDTO.success(mess))));
     }
+
+    //广播消息自己除外
+    public static void boardCastSelfLessInfo(Channel channel, int code, Object mess) {
+        try {
+            rwLock.readLock().lock();
+            Set<Channel> keySet = userInfos.keySet();
+            for (Channel ch : keySet) {
+                if (channel == ch) continue;
+                UserInfo userInfo = userInfos.get(ch);
+                if (userInfo == null || !userInfo.isAuth()) continue;
+                ch.writeAndFlush(new TextWebSocketFrame(ChatProto.buildProto(code, CommonDTO.success(mess))));
+            }
+        } finally {
+            rwLock.readLock().unlock();
+        }
+    }
+
     public static void sendPong(Channel channel) {
         channel.writeAndFlush(new TextWebSocketFrame(ChatProto.buildPongProto()));
     }
@@ -163,7 +201,7 @@ public class UserInfoManager {
         for (int i = 0; i < userInfos.size(); i++) {
             UserInfo userInfo = userInfos.get(i);
             UserInfo.TemUser temUser = userInfo.getTemUser();
-            temUser.setId(i);
+            temUser.setId(userInfo.getUserId());
             result.add(temUser);
         }
         return result;
@@ -183,4 +221,16 @@ public class UserInfoManager {
             userInfo.setTime(System.currentTimeMillis());
         }
     }
+
+
+    private static boolean checkParamUid(Integer... uids) {
+
+        for (Integer uid : uids) {
+            if (uid > 100) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }

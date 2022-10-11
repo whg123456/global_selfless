@@ -44,7 +44,7 @@ public class UserInfo {
 
     public TemUser getTemUser() {
         TemUser temUser = new TemUser();
-        temUser.setUsername(this.getAddr() + this.nick);
+        temUser.setUsername(this.nick);
         temUser.setInfo("ceshi");
         temUser.setTimer("2022/8/9");
         return temUser;
